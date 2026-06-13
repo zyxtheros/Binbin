@@ -1,0 +1,10 @@
+{
+    "name": "NetConnect",
+    "version": "1.0.0",
+    "description": "Network connection initializtion library for ESP32",
+    "authors": [
+      {
+        "name": "Caleb Capps"
+      }
+    ]
+  }
