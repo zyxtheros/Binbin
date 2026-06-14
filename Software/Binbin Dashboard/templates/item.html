@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ item.name }}{% endblock %}
+{% block content %}
+
+<p style="margin-bottom:1rem"><a href="/">← All items</a></p>
+
+<!-- Header -->
+<div class="card" style="display:flex; justify-content:space-between; align-items:flex-start">
+  <div>
+    <span class="badge">{{ item.sku }}</span>
+    <h1 style="margin-top:0.5rem">{{ item.name }}</h1>
+    {% if item.description %}
+      <p style="color:#555; margin-top:0.5rem">{{ item.description }}</p>
+    {% endif %}
+  </div>
+  <a href="/item/{{ item.id }}/specs" class="button">Edit specs</a>
+</div>
+
+<!-- Images -->
+{% if images %}
+<div class="card">
+  <h2>Images</h2>
+  <div style="display:flex; flex-wrap:wrap; gap:1rem">
+    {% for img in images %}
+    <a href="/image/{{ img.id }}" target="_blank">
+      <img src="/image/{{ img.id }}" alt="{{ img.filename }}"
+           style="height:180px; border-radius:8px; object-fit:cover; border:1px solid #eee">
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Specs -->
+<div class="card">
+  <h2>Specifications</h2>
+  {% if spec_rows %}
+    <table>
+      {% for row in spec_rows %}
+      <tr>
+        <td>{{ row.display_name }}</td>
+        <td>
+          {% if row.value is mapping %}
+            {% for k, v in row.value.items() %}{{ k }}: {{ v }}{% if not loop.last %}, {% endif %}{% endfor %}
+          {% else %}
+            {{ row.value }}{% if row.unit %} {{ row.unit }}{% endif %}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p style="color:#888">No specs added yet.</p>
+  {% endif %}
+</div>
+
+<!-- Datasheets -->
+{% if datasheets %}
+<div class="card">
+  <h2>Datasheets</h2>
+  {% for sheet in datasheets %}
+  <a href="/datasheet/{{ sheet.id }}" target="_blank"
+     style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem;
+            background:#f4f4f5; border-radius:8px; text-decoration:none; margin-right:0.5rem">
+    📄 {{ sheet.filename or "Datasheet " ~ sheet.id }}
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

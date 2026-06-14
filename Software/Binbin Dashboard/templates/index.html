@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}All Items{% endblock %}
+{% block content %}
+
+<div style="display:flex; gap:1.5rem; align-items:flex-start">
+
+  <!-- Sidebar filters -->
+  <aside class="card" style="width:240px; flex-shrink:0; position:sticky; top:1rem">
+    <h2>Filters</h2>
+    <form method="GET">
+      {% for f in filters %}
+        <div style="margin-bottom:1.25rem">
+          <label style="margin-bottom:0.5rem">{{ f.display_name }}{% if f.unit %} ({{ f.unit }}){% endif %}</label>
+
+          {% if f.field_type == "number" %}
+            <div style="display:flex; gap:0.5rem; align-items:center">
+              <input type="number" step="any" name="min_{{ f.field_key }}"
+                     placeholder="{{ f.min_val }}"
+                     value="{{ request.args.get('min_' ~ f.field_key, '') }}"
+                     style="margin-bottom:0; width:50%">
+              <span style="color:#888">to</span>
+              <input type="number" step="any" name="max_{{ f.field_key }}"
+                     placeholder="{{ f.max_val }}"
+                     value="{{ request.args.get('max_' ~ f.field_key, '') }}"
+                     style="margin-bottom:0; width:50%">
+            </div>
+            <div style="font-size:0.75rem; color:#999; margin-top:0.25rem">
+              Range: {{ f.min_val }} – {{ f.max_val }}{% if f.unit %} {{ f.unit }}{% endif %}
+            </div>
+          {% else %}
+            {% for val in f.options %}
+              <div style="font-size:0.9rem; margin-bottom:0.25rem">
+                <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:normal; margin-bottom:0">
+                  <input type="checkbox" name="{{ f.field_key }}" value="{{ val }}"
+                         style="width:auto; margin-bottom:0"
+                         {% if val in request.args.getlist(f.field_key) %}checked{% endif %}>
+                  {{ val }}
+                </label>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button type="submit">Apply filters</button>
+      {% if request.args %}
+        <a href="{{ url_for('index') }}" class="button secondary" style="display:block; text-align:center; margin-top:0.5rem">Clear all</a>
+      {% endif %}
+    </form>
+  </aside>
+
+  <!-- Item list -->
+  <div style="flex:1">
+    <h1 style="margin-bottom:1.5rem">All Items</h1>
+
+    {% if items %}
+      {% for p in items %}
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center">
+        <div>
+          <span class="badge">{{ p.sku }}</span>
+          <h1 style="font-size:1.1rem; margin-top:0.4rem">
+            <a href="{{ url_for('item', item_id=p.id) }}">{{ p.name }}</a>
+          </h1>
+          {% if p.description %}
+            <p style="color:#666; font-size:0.9rem; margin-top:0.25rem">{{ p.description }}</p>
+          {% endif %}
+        </div>
+        <a href="{{ url_for('item', item_id=p.id) }}" style="font-size:1.5rem; text-decoration:none">›</a>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="card">
+        <p style="color:#888">No items match the selected filters.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Edit Specs - {{ product.name }}{% endblock %}
+{% block content %}
+
+<p style="margin-bottom:1rem"><a href="/product/{{ product.id }}">← Back to {{ product.name }}</a></p>
+
+<div class="card">
+  <h2>Current specs</h2>
+  {% if current_specs %}
+    {% for spec in current_specs %}
+    <div class="field-row">
+      <div>
+        <strong>{{ spec.display_name }}</strong>:
+        {{ spec.value }}{% if spec.unit %} {{ spec.unit }}{% endif %}
+      </div>
+      <form method="POST" style="margin:0">
+        <input type="hidden" name="action" value="remove_field">
+        <input type="hidden" name="field_key" value="{{ spec.key }}">
+        <button type="submit" class="danger" style="padding:0.3rem 0.8rem; font-size:0.85rem">Remove</button>
+      </form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p style="color:#888">No specs added yet.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Add a field</h2>
+  <form method="POST" id="add-field-form">
+    <input type="hidden" name="action" value="add_field">
+
+    <label for="field_key">Field</label>
+    <select id="field_key" name="field_key" onchange="toggleNewFieldInputs()">
+      <option value="">— Select a field —</option>
+      {% for f in available_fields %}
+        <option value="{{ f.field_key }}">{{ f.display_name }}{% if f.unit %} ({{ f.unit }}){% endif %}</option>
+      {% endfor %}
+      <option value="__new__">+ Create new field…</option>
+    </select>
+
+    <!-- Shown only when "Create new field" is selected -->
+    <div id="new-field-inputs" style="display:none">
+      <div class="form-grid">
+        <div>
+          <label for="new_display_name">New field name</label>
+          <input type="text" id="new_display_name" name="new_display_name" placeholder="e.g. Bluetooth Version">
+        </div>
+        <div>
+          <label for="new_field_type">Type</label>
+          <select id="new_field_type" name="new_field_type">
+            <option value="text">Text</option>
+            <option value="number">Number</option>
+            <option value="boolean">Yes/No</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label for="new_field_key">Internal key (auto)</label>
+          <input type="text" id="new_field_key" name="new_field_key" readonly placeholder="auto-generated">
+        </div>
+        <div>
+          <label for="new_unit">Unit (optional)</label>
+          <input type="text" id="new_unit" name="new_unit" placeholder="e.g. V, kg, mm">
+        </div>
+      </div>
+    </div>
+
+    <label for="value">Value</label>
+    <input type="text" id="value" name="value" required placeholder="e.g. 12V, 2.5, Yes">
+
+    <button type="submit">Add field</button>
+  </form>
+</div>
+
+<script>
+function toggleNewFieldInputs() {
+  const select = document.getElementById('field_key');
+  const newFieldDiv = document.getElementById('new-field-inputs');
+  const isNew = select.value === '__new__';
+  newFieldDiv.style.display = isNew ? 'block' : 'none';
+
+  document.getElementById('new_display_name').required = isNew;
+  document.getElementById('new_field_key').required = isNew;
+}
+
+// Auto-generate the internal key from the display name
+document.getElementById('new_display_name').addEventListener('input', function() {
+  const key = this.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  document.getElementById('new_field_key').value = key;
+});
+</script>
+
+{% endblock %}

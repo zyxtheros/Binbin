@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}New Item{% endblock %}
+{% block content %}
+
+<p style="margin-bottom:1rem"><a href="/">← All items</a></p>
+
+<div class="card">
+  <h2>New Item</h2>
+  <form method="POST" enctype="multipart/form-data">
+
+    <label for="sku">SKU</label>
+    <input type="text" id="sku" name="sku" required placeholder="e.g. WIDGET-002">
+
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" required placeholder="e.g. Industrial Widget Lite">
+
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="3" placeholder="Optional description"></textarea>
+
+    <label for="image">Image</label>
+    <input type="file" id="image" name="image" accept="image/*">
+
+    <h2 style="margin-top:1.5rem">Specifications</h2>
+    <div id="spec-fields"></div>
+    <button type="button" class="secondary" onclick="addSpecRow()">+ Add spec field</button>
+
+    <div style="margin-top:1.5rem">
+      <button type="submit">Create Item</button>
+    </div>
+  </form>
+</div>
+
+<template id="field-options-template">
+  <option value="">— Select a field —</option>
+  {% for f in catalog_fields %}
+    <option value="{{ f.field_key }}">{{ f.display_name }}{% if f.unit %} ({{ f.unit }}){% endif %}</option>
+  {% endfor %}
+  <option value="__new__">+ Create new field…</option>
+</template>
+
+<script>
+let specRowCount = 0;
+
+function addSpecRow() {
+  specRowCount++;
+  const id = specRowCount;
+
+  const row = document.createElement('div');
+  row.className = 'card';
+  row.style.padding = '1rem';
+  row.style.marginBottom = '0.75rem';
+  row.id = `spec-row-${id}`;
+
+  const optionsHTML = document.getElementById('field-options-template').innerHTML;
+
+  row.innerHTML = `
+    <div class="form-grid">
+      <div>
+        <label>Field</label>
+        <select name="field_key[]" onchange="toggleNewField(${id}, this)">
+          ${optionsHTML}
+        </select>
+      </div>
+      <div>
+        <label>Value</label>
+        <input type="text" name="field_value[]" placeholder="e.g. 12V, 2.5, Yes">
+      </div>
+    </div>
+
+    <div id="new-field-${id}" style="display:none">
+      <div class="form-grid">
+        <div>
+          <label>New field name</label>
+          <input type="text" name="new_field_name[]" placeholder="e.g. Bluetooth Version">
+        </div>
+        <div>
+          <label>Type</label>
+          <select name="new_field_type[]">
+            <option value="text">Text</option>
+            <option value="number">Number</option>
+            <option value="boolean">Yes/No</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label>Unit (optional)</label>
+          <input type="text" name="new_field_unit[]" placeholder="e.g. V, kg, mm">
+        </div>
+        <div>
+          <label>Value</label>
+          <input type="text" name="new_field_value[]" placeholder="e.g. 5.3">
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="danger" style="padding:0.3rem 0.8rem; font-size:0.85rem"
+            onclick="document.getElementById('spec-row-${id}').remove()">Remove field</button>
+  `;
+
+  document.getElementById('spec-fields').appendChild(row);
+}
+
+function toggleNewField(id, select) {
+  const newFieldDiv = document.getElementById(`new-field-${id}`);
+  const valueInput = select.closest('.form-grid').querySelector('input[name="field_value[]"]');
+  const isNew = select.value === '__new__';
+  newFieldDiv.style.display = isNew ? 'block' : 'none';
+
+  valueInput.disabled = isNew;
+  valueInput.value = isNew ? '' : valueInput.value;
+}
+
+addSpecRow();
+</script>
+
+{% endblock %}

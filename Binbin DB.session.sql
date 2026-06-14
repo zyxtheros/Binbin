@@ -1,0 +1,1 @@
+select * from spec_field_definitions
