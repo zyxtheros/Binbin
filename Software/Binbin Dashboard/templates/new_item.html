@@ -2,7 +2,7 @@
 {% block title %}New Item{% endblock %}
 {% block content %}
 
-<p style="margin-bottom:1rem"><a href="/">← All items</a></p>
+<p class="mb-4"><a href="/">← All items</a></p>
 
 <div class="card">
   <h2>New Item</h2>
@@ -20,11 +20,11 @@
     <label for="image">Image</label>
     <input type="file" id="image" name="image" accept="image/*">
 
-    <h2 style="margin-top:1.5rem">Specifications</h2>
+    <h2 class="mt-5">Specifications</h2>
     <div id="spec-fields"></div>
     <button type="button" class="secondary" onclick="addSpecRow()">+ Add spec field</button>
 
-    <div style="margin-top:1.5rem">
+    <div class="mt-5">
       <button type="submit">Create Item</button>
     </div>
   </form>
@@ -46,9 +46,7 @@ function addSpecRow() {
   const id = specRowCount;
 
   const row = document.createElement('div');
-  row.className = 'card';
-  row.style.padding = '1rem';
-  row.style.marginBottom = '0.75rem';
+  row.className = 'card spec-form-card';
   row.id = `spec-row-${id}`;
 
   const optionsHTML = document.getElementById('field-options-template').innerHTML;
@@ -67,7 +65,7 @@ function addSpecRow() {
       </div>
     </div>
 
-    <div id="new-field-${id}" style="display:none">
+    <div id="new-field-${id}" class="hidden">
       <div class="form-grid">
         <div>
           <label>New field name</label>
@@ -94,8 +92,7 @@ function addSpecRow() {
       </div>
     </div>
 
-    <button type="button" class="danger" style="padding:0.3rem 0.8rem; font-size:0.85rem"
-            onclick="document.getElementById('spec-row-${id}').remove()">Remove field</button>
+    <button type="button" class="danger btn-compact" onclick="document.getElementById('spec-row-${id}').remove()">Remove field</button>
   `;
 
   document.getElementById('spec-fields').appendChild(row);
@@ -105,7 +102,7 @@ function toggleNewField(id, select) {
   const newFieldDiv = document.getElementById(`new-field-${id}`);
   const valueInput = select.closest('.form-grid').querySelector('input[name="field_value[]"]');
   const isNew = select.value === '__new__';
-  newFieldDiv.style.display = isNew ? 'block' : 'none';
+  newFieldDiv.classList.toggle('hidden', !isNew);
 
   valueInput.disabled = isNew;
   valueInput.value = isNew ? '' : valueInput.value;

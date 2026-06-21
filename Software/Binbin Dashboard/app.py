@@ -349,6 +349,18 @@ def datasheet(sheet_id):
         headers={"Content-Disposition": f'inline; filename="{row["filename"]}"'}
     )
 
+# ---------- Add route handler for settings page ----------
+@app.route("/settings")
+def settings():
+    conn = get_db()
+    cur = conn.cursor()
+
+    # --- get all spec fields from DB ---
+    query = f"select * from spec_field_definitions order by field_key"
+    cur.execute(query)
+    items = cur.fetchall()
+
+    return render_template("settings.html", items = items) # pass the items to the template for rendering
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)

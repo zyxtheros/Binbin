@@ -2,12 +2,12 @@
 {% block title %}Edit Specs - {{ item.name }}{% endblock %}
 {% block content %}
 
-<p style="margin-bottom:1rem"><a href="{{ url_for('item', item_id=item.id) }}">← Back to {{ item.name }}</a></p>
+<p class="mb-4"><a href="{{ url_for('item', item_id=item.id) }}">← Back to {{ item.name }}</a></p>
 
-<div class="card" style="display:flex; justify-content:space-between; align-items:flex-start">
+<div class="card page-header">
   <div>
     <h1>Edit Specifications</h1>
-    <p style="color:#555; margin-top:0.5rem">{{ item.name }}</p>
+    <p class="text-muted mt-2">{{ item.name }}</p>
   </div>
 </div>
 
@@ -20,15 +20,15 @@
         <strong>{{ spec.display_name }}</strong>:
         {{ spec.value }}{% if spec.unit %} {{ spec.unit }}{% endif %}
       </div>
-      <form method="POST" style="margin:0">
+      <form method="POST" class="m-0">
         <input type="hidden" name="action" value="remove_field">
         <input type="hidden" name="field_key" value="{{ spec.key }}">
-        <button type="submit" class="danger" style="padding:0.3rem 0.8rem; font-size:0.85rem">Remove</button>
+        <button type="submit" class="danger btn-compact">Remove</button>
       </form>
     </div>
     {% endfor %}
   {% else %}
-    <p style="color:#888">No specs added yet.</p>
+    <p class="text-faint">No specs added yet.</p>
   {% endif %}
 </div>
 
@@ -47,7 +47,7 @@
     </select>
 
     <!-- Shown only when "Create new field" is selected -->
-    <div id="new-field-inputs" style="display:none">
+    <div id="new-field-inputs" class="hidden">
       <div class="form-grid">
         <div>
           <label for="new_display_name">New field name</label>
@@ -86,7 +86,7 @@ function toggleNewFieldInputs() {
   const select = document.getElementById('field_key');
   const newFieldDiv = document.getElementById('new-field-inputs');
   const isNew = select.value === '__new__';
-  newFieldDiv.style.display = isNew ? 'block' : 'none';
+  newFieldDiv.classList.toggle('hidden', !isNew);
 
   document.getElementById('new_display_name').required = isNew;
   document.getElementById('new_field_key').required = isNew;

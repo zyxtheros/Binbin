@@ -1,1 +1,1 @@
-select * from spec_field_definitions
+select * from spec_field_definitions order by field_key

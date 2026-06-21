@@ -2,15 +2,15 @@
 {% block title %}{{ item.name }}{% endblock %}
 {% block content %}
 
-<p style="margin-bottom:1rem"><a href="/">← All items</a></p>
+<p class="mb-4"><a href="/">← All items</a></p>
 
 <!-- Header -->
-<div class="card" style="display:flex; justify-content:space-between; align-items:flex-start">
+<div class="card page-header">
   <div>
     <span class="badge">{{ item.sku }}</span>
-    <h1 style="margin-top:0.5rem">{{ item.name }}</h1>
+    <h1 class="mt-2">{{ item.name }}</h1>
     {% if item.description %}
-      <p style="color:#555; margin-top:0.5rem">{{ item.description }}</p>
+      <p class="text-muted mt-2">{{ item.description }}</p>
     {% endif %}
   </div>
   <a href="/item/{{ item.id }}/specs" class="button">Edit specs</a>
@@ -20,11 +20,10 @@
 {% if images %}
 <div class="card">
   <h2>Images</h2>
-  <div style="display:flex; flex-wrap:wrap; gap:1rem">
+  <div class="image-gallery">
     {% for img in images %}
     <a href="/image/{{ img.id }}" target="_blank">
-      <img src="/image/{{ img.id }}" alt="{{ img.filename }}"
-           style="height:180px; border-radius:8px; object-fit:cover; border:1px solid #eee">
+      <img src="/image/{{ img.id }}" alt="{{ img.filename }}">
     </a>
     {% endfor %}
   </div>
@@ -50,7 +49,7 @@
       {% endfor %}
     </table>
   {% else %}
-    <p style="color:#888">No specs added yet.</p>
+    <p class="text-faint">No specs added yet.</p>
   {% endif %}
 </div>
 
@@ -59,9 +58,7 @@
 <div class="card">
   <h2>Datasheets</h2>
   {% for sheet in datasheets %}
-  <a href="/datasheet/{{ sheet.id }}" target="_blank"
-     style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem;
-            background:#f4f4f5; border-radius:8px; text-decoration:none; margin-right:0.5rem">
+  <a href="/datasheet/{{ sheet.id }}" target="_blank" class="datasheet-link">
     📄 {{ sheet.filename or "Datasheet " ~ sheet.id }}
   </a>
   {% endfor %}
