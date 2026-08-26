@@ -16,10 +16,16 @@
   {% if current_specs %}
     {% for spec in current_specs %}
     <div class="field-row">
-      <div>
-        <strong>{{ spec.display_name }}</strong>:
-        {{ spec.value }}{% if spec.unit %} {{ spec.unit }}{% endif %}
-      </div>
+      <strong class="spec-name">{{ spec.display_name }}</strong>
+
+      <form method="POST" class="inline-edit-form m-0">
+        <input type="hidden" name="action" value="edit_field">
+        <input type="hidden" name="field_key" value="{{ spec.key }}">
+        <input type="text" name="value" value="{{ spec.value }}" class="value-input" data-original="{{ spec.value }}">
+        {% if spec.unit %}<span class="text-muted">{{ spec.unit }}</span>{% endif %}
+        <button type="submit" class="btn-compact save-btn hidden">Save</button>
+      </form>
+
       <form method="POST" class="m-0">
         <input type="hidden" name="action" value="remove_field">
         <input type="hidden" name="field_key" value="{{ spec.key }}">
@@ -82,20 +88,28 @@
 </div>
 
 <script>
-function toggleNewFieldInputs() {
-  const select = document.getElementById('field_key');
-  const newFieldDiv = document.getElementById('new-field-inputs');
-  const isNew = select.value === '__new__';
-  newFieldDiv.classList.toggle('hidden', !isNew);
+  function toggleNewFieldInputs() {
+    const select = document.getElementById('field_key');
+    const newFieldDiv = document.getElementById('new-field-inputs');
+    const isNew = select.value === '__new__';
+    newFieldDiv.classList.toggle('hidden', !isNew);
 
-  document.getElementById('new_display_name').required = isNew;
-  document.getElementById('new_field_key').required = isNew;
-}
+    document.getElementById('new_display_name').required = isNew;
+    document.getElementById('new_field_key').required = isNew;
+  }
 
-// Auto-generate the internal key from the display name
-document.getElementById('new_display_name').addEventListener('input', function() {
-  const key = this.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  document.getElementById('new_field_key').value = key;
+  // Auto-generate the internal key from the display name
+  document.getElementById('new_display_name').addEventListener('input', function() {
+    const key = this.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    document.getElementById('new_field_key').value = key;
+  });
+  // Show/hide the "Save" button when the value changes
+  document.querySelectorAll('.value-input').forEach(function (input) {
+  const form = input.closest('form');
+  const saveBtn = form.querySelector('.save-btn');
+  input.addEventListener('input', function () {
+    saveBtn.classList.toggle('hidden', input.value === input.dataset.original);
+  });
 });
 </script>
 

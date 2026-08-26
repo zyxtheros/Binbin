@@ -36,6 +36,10 @@
   
     /* Type */
     --font-base: system-ui, sans-serif;
+
+    /* Spec edit form grid widths */
+    --spec-name-width: 160px;
+    --spec-value-width: 160px;
   }
   
   /* Base / reset */
@@ -409,4 +413,49 @@
   font-weight: 500;
 
   border-radius: var(--radius-sm);
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  /* justify-content: space-between;  <- remove this, it's what was spacing everything out */
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.field-row:last-child {
+  border-bottom: none;
+}
+
+.spec-name {
+  width: var(--spec-name-width);
+  flex-shrink: 0;
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+.inline-edit-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;              /* fills remaining row space so margin-left:auto below has room to push into */
+}
+
+.value-input {
+  margin-bottom: 0;
+  width: var(--spec-value-width);
+  max-width: 100%;
+  flex: none;
+}
+
+.save-btn {
+  margin-left: auto;    /* pushes Save to the right edge of the form, landing next to Remove */
+}
+
+@media (max-width: 480px) {
+  :root {
+    --spec-name-width: 110px;
+    --spec-value-width: 140px;
+  }
 }

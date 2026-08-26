@@ -5,6 +5,9 @@ import psycopg2.extras
 from flask import Flask, render_template, request, redirect, url_for, abort, Response
 from dotenv import load_dotenv
 
+import socket
+from waitress import serve
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -235,7 +238,7 @@ def new_item():
     return render_template("new_item.html", catalog_fields=catalog_fields)
 
 
-# ---------- Edit specs for a item (add/remove fields) ----------
+# ---------- Edit specs for an item (add/remove fields) ----------
 @app.route("/item/<int:item_id>/specs", methods=["GET", "POST"])
 def edit_specs(item_id):
     conn = get_db()
@@ -284,6 +287,17 @@ def edit_specs(item_id):
                 WHERE id = %s
             """, (field_key, item_id))
 
+        elif action == "edit_field":
+            field_key = request.form["field_key"]
+            value = request.form["value"].strip()
+
+            cur.execute("""
+                UPDATE items
+                SET specs = jsonb_set(specs, %s, %s::jsonb, true),
+                    updated_at = NOW()
+                WHERE id = %s
+            """, ([field_key], json.dumps(value), item_id))
+        
         conn.commit()
         conn.close()
         return redirect(url_for("edit_specs", item_id=item_id))
@@ -363,4 +377,8 @@ def settings():
     return render_template("settings.html", items = items) # pass the items to the template for rendering
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5002)
+    # Get free port to run the app on
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(("", 0))
+    port = sock.getsockname()[1]
+    sock.close()
