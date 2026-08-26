@@ -1,0 +1,14 @@
+prefix=/Users/runner/work/postgresql-binaries/postgresql-binaries/postgresql-18.4.0-aarch64-apple-darwin
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libecpg
+Description: PostgreSQL libecpg library
+URL: https://www.postgresql.org/
+Version: 18.4
+Requires: 
+Requires.private: libpq, libpgtypes
+Cflags: -I${includedir}
+Libs: -L${libdir} -lecpg
+Libs.private: -L/opt/homebrew/opt/icu4c/lib -L/opt/homebrew/opt/openssl/lib -lpgcommon -lpgport -lpq -lm

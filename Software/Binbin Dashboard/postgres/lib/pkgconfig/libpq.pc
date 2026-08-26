@@ -1,0 +1,14 @@
+prefix=/Users/runner/work/postgresql-binaries/postgresql-binaries/postgresql-18.4.0-aarch64-apple-darwin
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libpq
+Description: PostgreSQL libpq library
+URL: https://www.postgresql.org/
+Version: 18.4
+Requires: 
+Requires.private: libssl, libcrypto
+Cflags: -I${includedir}
+Libs: -L${libdir} -lpq
+Libs.private: -L/opt/homebrew/opt/icu4c/lib -L/opt/homebrew/opt/openssl/lib -lpgcommon -lpgport -lssl -lm
