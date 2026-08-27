@@ -1,425 +1,235 @@
 /*  styles.css — main stylesheet for Binbin Dashboard */
-   :root {
-    /* Colors */
-    --color-bg: #f4f4f5;
-    --color-text: #1a1a1a;
-    --color-text-muted: #555;
-    --color-text-faint: #888;
-    --color-text-subtle: #666;
-    --color-text-heading: #444;
-    --color-text-faintest: #999;
-    --color-border: #eee;
-    --color-border-soft: #f0f0f0;
-    --color-input-border: #ddd;
-    --color-primary: #1e3a5f;
-    --color-on-primary: #ffffff;
-    --color-secondary: #888;
-    --color-danger: #b3261e;
-    --color-badge-bg: #e8f0fe;
-    --color-surface: #ffffff;
-    --color-shadow: rgba(0, 0, 0, 0.08);
-    --color-header-btn-bg: rgba(255, 255, 255, 0.15);
-  
-    /* Border radius */
-    --radius-sm: 6px;
-    --radius-md: 8px;
-    --radius-lg: 10px;
-    --radius-pill: 99px;
-  
-    /* Spacing scale */
-    --space-1: 0.25rem;
-    --space-2: 0.5rem;
-    --space-3: 0.75rem;
-    --space-4: 1rem;
-    --space-5: 1.5rem;
-    --space-6: 2rem;
-  
-    /* Type */
-    --font-base: system-ui, sans-serif;
+:root {
+  /* Colors */
+  --color-bg: #f4f4f5;
+  --color-text: #1a1a1a;
+  --color-text-muted: #555;
+  --color-text-faint: #888;
+  --color-text-subtle: #666;
+  --color-text-heading: #444;
+  --color-text-faintest: #999;
+  --color-border: #eee;
+  --color-border-soft: #f0f0f0;
+  --color-input-border: #ddd;
+  --color-primary: #1e3a5f;
+  --color-on-primary: #ffffff;
+  --color-secondary: #888;
+  --color-danger: #b3261e;
+  --color-badge-bg: #e8f0fe;
+  --color-surface: #ffffff;
+  --color-shadow: rgba(0, 0, 0, 0.08);
+  --color-header-btn-bg: rgba(255, 255, 255, 0.15);
 
-    /* Spec edit form grid widths */
-    --spec-name-width: 160px;
-    --spec-value-width: 160px;
-  }
-  
-  /* Base / reset */
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  
-  body {
-    font-family: var(--font-base);
-    background: var(--color-bg);
-    color: var(--color-text);
-  }
-  
-  a {
-    color: var(--color-primary);
-  }
-  
-  h1 {
-    font-size: 1.6rem;
-    margin-bottom: 0.25rem;
-  }
-  
-  h2 {
-    font-size: 1.1rem;
-    margin-bottom: var(--space-4);
-    color: var(--color-text-heading);
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: var(--space-2);
-  }
-  
-  /* Layout */
-  header {
-    background: var(--color-primary);
-    color: var(--color-on-primary);
-    padding: var(--space-4) var(--space-6);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  header a {
-    color: var(--color-on-primary);
-    text-decoration: none;
-    font-size: 1.2rem;
-    font-weight: 600;
-  }
-  
-  header .btn {
-    background: var(--color-header-btn-bg);
-    padding: 0.4rem 0.9rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-  
-  main {
-    max-width: 960px;
-    margin: var(--space-6) auto;
-    padding: 0 var(--space-4);
-  }
-  
-  /* Core components */
-  .card {
-    background: var(--color-surface);
-    border-radius: var(--radius-lg);
-    padding: var(--space-5);
-    margin-bottom: var(--space-4);
-    box-shadow: 0 1px 4px var(--color-shadow);
-  }
-  
-  .badge {
-    display: inline-block;
-    background: var(--color-badge-bg);
-    color: var(--color-primary);
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    border-radius: var(--radius-pill);
-    font-weight: 600;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  td {
-    padding: var(--space-2) 0.75rem;
-    border-bottom: 1px solid var(--color-border-soft);
-    font-size: 0.95rem;
-  }
-  
-  td:first-child {
-    color: var(--color-text-subtle);
-    width: 40%;
-  }
-  
-  td:last-child {
-    font-weight: 500;
-  }
-  
-  label {
-    display: block;
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-1);
-    font-weight: 500;
-  }
-  
-  input,
-  select,
-  textarea {
-    width: 100%;
-    padding: 0.5rem 0.7rem;
-    border: 1px solid var(--color-input-border);
-    border-radius: var(--radius-sm);
-    font-size: 0.95rem;
-    margin-bottom: var(--space-4);
-    font-family: inherit;
-  }
-  
-  button,
-  .button {
-    background: var(--color-primary);
-    color: var(--color-on-primary);
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.95rem;
-    cursor: pointer;
-    font-weight: 500;
-    text-decoration: none;
-    display: inline-block;
-  }
-  
-  button.secondary,
-  .button.secondary {
-    background: var(--color-secondary);
-  }
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-pill: 99px;
 
-  .btn-hover {
-    position: relative;
-    white-space: nowrap;
-  }
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
 
-  .btn-hover i {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    
-    line-height: 1;
-  }
-  
-  /* label starts hidden but DOES NOT affect layout spacing */
-.btn-hover .label {
-  display: inline-block;
-  max-width: 0;
-  overflow: hidden;
+  /* Type */
+  --font-base: system-ui, sans-serif;
 
-  opacity: 0;
-  margin-left: 0;
-
-  vertical-align: middle;
-
-  transition:
-    max-width 0.45s ease-in-out,
-    opacity 0.15s ease-in-out,
-    margin-left 0.3s ease-in-out;
+  /* Spec edit form grid widths */
+  --spec-name-width: 160px;
+  --spec-value-width: 160px;
 }
-  
-  /* hover state */
-  .btn-hover:hover .label,
-  .btn-hover:focus-visible .label {
-    opacity: 1;
-    max-width: 200px;
-    margin-left: 0.3rem;
-  }
-  
-  button.danger,
-  .button.danger {
-    background: var(--color-danger);
-  }
-  
-  .field-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid var(--color-border-soft);
-  }
-  
-  .field-row:last-child {
-    border-bottom: none;
-  }
-  
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 var(--space-4);
-  }
-  
-  /* ==========================================================================
-     Small utilities
-     Spacing/visibility/text helpers that replace one-off inline styles
-     scattered across the templates. Values map back to the spacing/color
-     tokens above wherever the original inline value matched the scale.
-     ========================================================================== */
-  .hidden { display: none; }
-  .m-0 { margin: 0; }
-  .mb-2 { margin-bottom: var(--space-2); }
-  .mb-4 { margin-bottom: var(--space-4); }
-  .mb-5 { margin-bottom: var(--space-5); }
-  .mt-2 { margin-top: var(--space-2); }
-  .mt-5 { margin-top: var(--space-5); }
-  .flex-1 { flex: 1; }
-  .text-muted { color: var(--color-text-muted); }
-  .text-faint { color: var(--color-text-faint); }
-  .btn-compact { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
-  
-  /* ==========================================================================
-     Page-specific components
-     Named, reusable chunks for layout patterns that repeat within a page
-     (sidebar filters, item rows, image galleries, etc.)
-     ========================================================================== */
-  
-  /* Shared "title block + action" header used on item & edit-specs pages */
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  
-  /* index.html — filter sidebar + item list */
-  .layout-with-sidebar {
-    display: flex;
-    gap: var(--space-5);
-    align-items: flex-start;
-  }
-  
-  .sidebar {
-    width: 240px;
-    flex-shrink: 0;
-    position: sticky;
-    top: var(--space-4);
-  }
-  
-  .filter-group {
-    margin-bottom: 1.25rem;
-  }
-  
-  .range-inputs {
-    display: flex;
-    gap: var(--space-2);
-    align-items: center;
-  }
-  
-  .range-inputs input {
-    width: 50%;
-    margin-bottom: 0;
-  }
-  
-  .range-note {
-    font-size: 0.75rem;
-    color: var(--color-text-faintest);
-    margin-top: var(--space-1);
-  }
-  
-  .checkbox-row {
-    font-size: 0.9rem;
-    margin-bottom: var(--space-1);
-  }
-  
-  .checkbox-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-weight: normal;
-    margin-bottom: 0;
-  }
-  
-  .checkbox-label input {
-    width: auto;
-    margin-bottom: 0;
-  }
-  
-  .btn-block-center {
-    display: block;
-    text-align: center;
-    margin-top: var(--space-2);
-  }
-  
-  .item-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .item-title {
-    font-size: 1.1rem;
-    margin-top: 0.4rem;
-  }
-  
-  .item-desc {
-    color: var(--color-text-subtle);
-    font-size: 0.9rem;
-    margin-top: var(--space-1);
-  }
-  
-  .chevron-link {
-    font-size: 1.5rem;
-    text-decoration: none;
-  }
-  
-  /* item.html — image gallery + datasheet links */
-  .image-gallery {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-  }
-  
-  .image-gallery img {
-    height: 180px;
-    border-radius: var(--radius-md);
-    object-fit: cover;
-    border: 1px solid var(--color-border);
-  }
-  
-  .datasheet-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 0.5rem 1rem;
-    background: var(--color-bg);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    margin-right: var(--space-2);
-  }
-  
-  /* new_item.html — dynamically added spec rows */
-  .spec-form-card {
-    padding: var(--space-4);
-    margin-bottom: var(--space-3);
-  }
 
-/* vertical navbar */
-  nav {
-    position: fixed;
-    display: flex;
-    justify-content: flex-start;
-    flex-direction: column;
+/* Base / reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    background: var(--color-primary);
-    border-radius: var(--radius-lg);
-    gap: var(--space-3);
-  }
+body {
+  font-family: var(--font-base);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
 
-.link-btn {
+a {
+  color: var(--color-primary);
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin-bottom: var(--space-4);
+  color: var(--color-text-heading);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-2);
+}
+
+/* Layout */
+header {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  padding: var(--space-4) var(--space-6);
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  
-  background: var(--color-header-btn-bg);
+}
+
+header a {
   color: var(--color-on-primary);
   text-decoration: none;
-  
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+header .btn {
+  background: var(--color-header-btn-bg);
   padding: 0.4rem 0.9rem;
-  
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
   font-weight: 500;
+}
 
+main {
+  max-width: 960px;
+  margin: var(--space-6) auto;
+  padding: 0 var(--space-4);
+}
+
+/* Core components */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-4);
+  box-shadow: 0 1px 4px var(--color-shadow);
+}
+
+.badge {
+  display: inline-block;
+  background: var(--color-badge-bg);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+td {
+  padding: var(--space-2) 0.75rem;
+  border-bottom: 1px solid var(--color-border-soft);
+  font-size: 0.95rem;
+}
+
+td:first-child {
+  color: var(--color-text-subtle);
+  width: 40%;
+}
+
+td:last-child {
+  font-weight: 500;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+  font-weight: 500;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--color-input-border);
   border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  margin-bottom: var(--space-4);
+  font-family: inherit;
+}
+
+button,
+.button {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+}
+
+button.secondary,
+.button.secondary {
+  background: var(--color-secondary);
+}
+
+.btn-hover {
+  position: relative;
+  white-space: nowrap;
+}
+
+.btn-hover i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  line-height: 1;
+}
+
+/* label starts hidden but DOES NOT affect layout spacing */
+.btn-hover .label {
+display: inline-block;
+max-width: 0;
+overflow: hidden;
+
+opacity: 0;
+margin-left: 0;
+
+vertical-align: middle;
+
+transition:
+  max-width 0.45s ease-in-out,
+  opacity 0.15s ease-in-out,
+  margin-left 0.3s ease-in-out;
+}
+
+/* hover state */
+.btn-hover:hover .label,
+.btn-hover:focus-visible .label {
+  opacity: 1;
+  max-width: 200px;
+  margin-left: 0.3rem;
+}
+
+button.danger,
+.button.danger {
+  background: var(--color-danger);
 }
 
 .field-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: var(--space-3);
-  /* justify-content: space-between;  <- remove this, it's what was spacing everything out */
   padding: 0.6rem 0;
   border-bottom: 1px solid var(--color-border-soft);
 }
@@ -428,34 +238,268 @@
   border-bottom: none;
 }
 
-.spec-name {
-  width: var(--spec-name-width);
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 var(--space-4);
+}
+
+/* ==========================================================================
+   Small utilities
+   Spacing/visibility/text helpers that replace one-off inline styles
+   scattered across the templates. Values map back to the spacing/color
+   tokens above wherever the original inline value matched the scale.
+   ========================================================================== */
+.hidden { display: none; }
+.m-0 { margin: 0; }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-5); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-5 { margin-top: var(--space-5); }
+.flex-1 { flex: 1; }
+.text-muted { color: var(--color-text-muted); }
+.text-faint { color: var(--color-text-faint); }
+.btn-compact { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
+
+/* ==========================================================================
+   Page-specific components
+   Named, reusable chunks for layout patterns that repeat within a page
+   (sidebar filters, item rows, image galleries, etc.)
+   ========================================================================== */
+
+/* Shared "title block + action" header used on item & edit-specs pages */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* index.html — filter sidebar + item list */
+.layout-with-sidebar {
+  display: flex;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+.sidebar {
+  width: 240px;
   flex-shrink: 0;
-  font-weight: 600;
-  overflow-wrap: break-word;
+  position: sticky;
+  top: var(--space-4);
+}
+
+.filter-group {
+  margin-bottom: 1.25rem;
+}
+
+.range-inputs {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.range-inputs input {
+  width: 50%;
+  margin-bottom: 0;
+}
+
+.range-note {
+  font-size: 0.75rem;
+  color: var(--color-text-faintest);
+  margin-top: var(--space-1);
+}
+
+.checkbox-row {
+  font-size: 0.9rem;
+  margin-bottom: var(--space-1);
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: normal;
+  margin-bottom: 0;
+}
+
+.checkbox-label input {
+  width: auto;
+  margin-bottom: 0;
+}
+
+.btn-block-center {
+  display: block;
+  text-align: center;
+  margin-top: var(--space-2);
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-title {
+  font-size: 1.1rem;
+  margin-top: 0.4rem;
+}
+
+.item-desc {
+  color: var(--color-text-subtle);
+  font-size: 0.9rem;
+  margin-top: var(--space-1);
+}
+
+.chevron-link {
+  font-size: 1.5rem;
+  text-decoration: none;
+}
+
+/* item.html — image gallery + datasheet links */
+.image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.image-gallery img {
+  height: 110px;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+}
+
+.datasheet-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.5rem 1rem;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  margin-right: var(--space-2);
+}
+
+/* edit_specs.html — image tile grid */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-4);
+}
+
+.image-tile {
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  text-align: center;
+}
+
+.image-thumb {
+  width: 100%;
+  height: 110px;
+  object-fit: contain;
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+.primary-badge {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+}
+
+.image-tile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: center;
+  margin-top: var(--space-2);
+}
+
+/* new_item.html — dynamically added spec rows */
+.spec-form-card {
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+/* vertical navbar */
+nav {
+  position: fixed;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+
+  background: var(--color-primary);
+  border-radius: var(--radius-lg);
+  gap: var(--space-3);
+}
+
+.link-btn {
+display: flex;
+align-items: center;
+
+background: var(--color-header-btn-bg);
+color: var(--color-on-primary);
+text-decoration: none;
+
+padding: 0.4rem 0.9rem;
+
+font-size: 0.9rem;
+font-weight: 500;
+
+border-radius: var(--radius-sm);
+}
+
+.field-row {
+display: flex;
+align-items: center;
+gap: var(--space-3);
+/* justify-content: space-between;  <- remove this, it's what was spacing everything out */
+padding: 0.6rem 0;
+border-bottom: 1px solid var(--color-border-soft);
+}
+
+.field-row:last-child {
+border-bottom: none;
+}
+
+.spec-name {
+width: var(--spec-name-width);
+flex-shrink: 0;
+font-weight: 600;
+overflow-wrap: break-word;
 }
 
 .inline-edit-form {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex: 1;              /* fills remaining row space so margin-left:auto below has room to push into */
+display: flex;
+align-items: center;
+gap: var(--space-2);
+flex: 1;              /* fills remaining row space so margin-left:auto below has room to push into */
 }
 
 .value-input {
-  margin-bottom: 0;
-  width: var(--spec-value-width);
-  max-width: 100%;
-  flex: none;
+margin-bottom: 0;
+width: var(--spec-value-width);
+max-width: 100%;
+flex: none;
 }
 
 .save-btn {
-  margin-left: auto;    /* pushes Save to the right edge of the form, landing next to Remove */
+margin-left: auto;    /* pushes Save to the right edge of the form, landing next to Remove */
 }
 
 @media (max-width: 480px) {
-  :root {
-    --spec-name-width: 110px;
-    --spec-value-width: 140px;
-  }
+:root {
+  --spec-name-width: 110px;
+  --spec-value-width: 140px;
+}
 }

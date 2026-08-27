@@ -5,6 +5,24 @@
 <p class="mb-4"><a href="/">← All items</a></p>
 
 <div class="card">
+  <h2>Start from an existing item</h2>
+  <div class="form-grid">
+    <div style="position:relative;">
+      <label for="base-item-search">Search items</label>
+      <input type="text" id="base-item-search"
+             placeholder="Type a SKU or name…" autocomplete="off"
+             oninput="filterBaseItemOptions(this.value)"
+             onfocus="filterBaseItemOptions(this.value)">
+    </div>
+    <div>
+      <label style="visibility:hidden;">Load</label>
+      <button type="button" id="load-base-item-btn" disabled onclick="loadBaseItem()">Load</button>
+    </div>
+  </div>
+  <p id="load-base-item-status" class="hidden" style="margin-top:0.5rem;"></p>
+</div>
+
+<div class="card">
   <h2>New Item</h2>
   <form method="POST" enctype="multipart/form-data">
 
@@ -41,7 +59,131 @@
 <script>
 let specRowCount = 0;
 
-function addSpecRow() {
+// Items data for the "start from an existing item" search box.
+// Rendered from Jinja once at page load — safe since item count is small.
+const baseItemsData = [
+  {% for it in items %}
+    { id: {{ it.id }}, sku: {{ it.sku|tojson }}, name: {{ it.name|tojson }} }{% if not loop.last %},{% endif %}
+  {% endfor %}
+];
+
+let selectedBaseItemId = null;
+
+// Build the suggestions box once and attach it directly to <body>.
+// This deliberately lives OUTSIDE the .card element: cards commonly use
+// `overflow: hidden` for rounded corners, which would otherwise clip
+// an absolutely-positioned dropdown before it ever becomes visible.
+const baseItemSuggestions = document.createElement('div');
+baseItemSuggestions.id = 'base-item-suggestions';
+baseItemSuggestions.className = 'hidden';
+baseItemSuggestions.style.cssText =
+  'position:fixed; z-index:10000; background:#fff; border:1px solid #ccc; ' +
+  'max-height:220px; overflow-y:auto; box-shadow:0 2px 6px rgba(0,0,0,0.15);';
+document.body.appendChild(baseItemSuggestions);
+
+// Match the Load button's height exactly to the search input's rendered
+// height, since button/input default padding can differ slightly even
+// when both use the same theme.
+function syncLoadButtonHeight() {
+  const input = document.getElementById('base-item-search');
+  const btn = document.getElementById('load-base-item-btn');
+  btn.style.boxSizing = 'border-box';
+  btn.style.height = `${input.offsetHeight}px`;
+}
+window.addEventListener('load', syncLoadButtonHeight);
+window.addEventListener('resize', syncLoadButtonHeight);
+
+function positionBaseItemSuggestions() {
+  const input = document.getElementById('base-item-search');
+  const rect = input.getBoundingClientRect();
+  baseItemSuggestions.style.top = `${rect.bottom}px`;
+  baseItemSuggestions.style.left = `${rect.left}px`;
+  baseItemSuggestions.style.width = `${rect.width}px`;
+}
+
+function filterBaseItemOptions(query) {
+  const loadBtn = document.getElementById('load-base-item-btn');
+
+  // Typing invalidates any previously selected item until they pick again
+  selectedBaseItemId = null;
+  loadBtn.disabled = true;
+
+  positionBaseItemSuggestions();
+
+  const q = query.trim().toLowerCase();
+  const matches = q
+    ? baseItemsData.filter(it =>
+        it.sku.toLowerCase().includes(q) || it.name.toLowerCase().includes(q))
+    : baseItemsData;
+
+  if (matches.length === 0) {
+    baseItemSuggestions.innerHTML = '<div style="padding:0.5rem; color:#888;">No matching items</div>';
+    baseItemSuggestions.classList.remove('hidden');
+    return;
+  }
+
+  baseItemSuggestions.innerHTML = matches.slice(0, 20).map(it => `
+    <div class="base-item-option" data-id="${it.id}"
+         style="padding:0.5rem; cursor:pointer;"
+         onmousedown="selectBaseItem(${it.id}, '${it.sku.replace(/'/g, "\\'")} — ${it.name.replace(/'/g, "\\'")}')">
+      ${it.sku} — ${it.name}
+    </div>
+  `).join('');
+  baseItemSuggestions.classList.remove('hidden');
+}
+
+function selectBaseItem(id, label) {
+  document.getElementById('base-item-search').value = label;
+  baseItemSuggestions.classList.add('hidden');
+  selectedBaseItemId = id;
+  document.getElementById('load-base-item-btn').disabled = false;
+}
+
+// Hide suggestions when clicking elsewhere on the page
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#base-item-search') && !e.target.closest('#base-item-suggestions')) {
+    baseItemSuggestions.classList.add('hidden');
+  }
+});
+
+async function loadBaseItem() {
+  const statusEl = document.getElementById('load-base-item-status');
+
+  if (!selectedBaseItemId) {
+    statusEl.textContent = 'Please pick an item from the list first.';
+    statusEl.classList.remove('hidden');
+    return;
+  }
+
+  statusEl.textContent = 'Loading…';
+  statusEl.classList.remove('hidden');
+
+  try {
+    const res = await fetch(`/api/items/${selectedBaseItemId}`);
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+    const item = await res.json();
+
+    // Populate the basic fields. SKU is intentionally left blank/untouched
+    // since the new item needs its own unique SKU.
+    document.getElementById('name').value = item.name || '';
+    document.getElementById('description').value = item.description || '';
+
+    // Clear out any existing spec rows, then rebuild from the loaded item.
+    // specs comes back as a {field_key: value} object, e.g. {"mass_kg": "2.5"}
+    document.getElementById('spec-fields').innerHTML = '';
+    specRowCount = 0;
+    const specs = item.specs || {};
+    Object.keys(specs).forEach(fieldKey => {
+      addSpecRow({ field_key: fieldKey, value: specs[fieldKey] });
+    });
+
+    statusEl.textContent = `Loaded item with SKU "${item.sku}" as a base. Update the SKU and adjust fields as needed.`;
+  } catch (err) {
+    statusEl.textContent = `Couldn't load that item: ${err.message}`;
+  }
+}
+
+function addSpecRow(prefill) {
   specRowCount++;
   const id = specRowCount;
 
@@ -61,7 +203,7 @@ function addSpecRow() {
       </div>
       <div>
         <label>Value</label>
-        <input type="text" name="field_value[]" placeholder="e.g. 12V, 2.5, Yes">
+        <input type="text" name="field_value[]" placeholder="e.g. 12V, 2.5, Yes" value="${prefill ? (prefill.value ?? '') : ''}">
       </div>
     </div>
 
@@ -96,6 +238,11 @@ function addSpecRow() {
   `;
 
   document.getElementById('spec-fields').appendChild(row);
+
+  if (prefill && prefill.field_key) {
+    const select = row.querySelector('select[name="field_key[]"]');
+    select.value = prefill.field_key;
+  }
 }
 
 function toggleNewField(id, select) {

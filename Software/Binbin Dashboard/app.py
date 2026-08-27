@@ -2,7 +2,7 @@ import os
 import json
 import psycopg2
 import psycopg2.extras
-from flask import Flask, render_template, request, redirect, url_for, abort, Response
+from flask import Flask, render_template, request, redirect, url_for, abort, Response, jsonify
 from dotenv import load_dotenv
 
 import socket
@@ -13,6 +13,9 @@ load_dotenv()
 app = Flask(__name__)
 
 def get_db():
+    print(f"[DB DEBUG] connecting host={os.getenv('DB_HOST', 'localhost')} "
+          f"port={os.getenv('DB_PORT', 5432)} db={os.getenv('DB_NAME', 'Inventory')} "
+          f"user={os.getenv('DB_USER', 'postgres')}")
     return psycopg2.connect(
         host=os.getenv("DB_HOST", "localhost"),
         port=os.getenv("DB_PORT", 5432),
@@ -234,8 +237,33 @@ def new_item():
         ORDER BY sort_order, display_name
     """)
     catalog_fields = cur.fetchall()
+
+    # Existing items, for the load template search box
+    cur.execute("SELECT id, sku, name FROM items ORDER BY name")
+    items = cur.fetchall()
+
     conn.close()
-    return render_template("new_item.html", catalog_fields=catalog_fields)
+    return render_template("new_item.html", catalog_fields=catalog_fields, items=items)
+
+
+# ---------- Item JSON (used to load an existing item as a base for a new one) ----------
+@app.route("/api/items/<int:item_id>")
+def api_item(item_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT sku, name, description, specs FROM items WHERE id = %s", (item_id,))
+    row = cur.fetchone()
+    conn.close()
+
+    if row is None:
+        return jsonify({"error": "Item not found"}), 404
+
+    return jsonify({
+        "sku": row["sku"],
+        "name": row["name"],
+        "description": row["description"],
+        "specs": row["specs"] or {}
+    })
 
 
 # ---------- Edit specs for an item (add/remove fields) ----------
@@ -244,7 +272,7 @@ def edit_specs(item_id):
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT id, name, specs FROM items WHERE id = %s", (item_id,))
+    cur.execute("SELECT id, name, description, specs FROM items WHERE id = %s", (item_id,))
     item = cur.fetchone()
     if not item:
         conn.close()
@@ -297,7 +325,83 @@ def edit_specs(item_id):
                     updated_at = NOW()
                 WHERE id = %s
             """, ([field_key], json.dumps(value), item_id))
-        
+
+        elif action == "edit_description":
+            description = request.form.get("description", "").strip()
+            cur.execute("""
+                UPDATE items
+                SET description = %s, updated_at = NOW()
+                WHERE id = %s
+            """, (description, item_id))
+
+        elif action == "add_image":
+            image_file = request.files.get("image")
+            if image_file and image_file.filename:
+                image_data = image_file.read()
+
+                # First image uploaded for this item becomes the primary one
+                cur.execute(
+                    "SELECT COUNT(*) AS cnt FROM items_images WHERE item_id = %s",
+                    (item_id,)
+                )
+                has_images = cur.fetchone()["cnt"] > 0
+
+                cur.execute("""
+                    INSERT INTO items_images (item_id, filename, mime_type, data, is_primary)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (item_id, image_file.filename, image_file.mimetype,
+                      psycopg2.Binary(image_data), not has_images))
+
+        elif action == "remove_image":
+            image_id = request.form["image_id"]
+
+            cur.execute(
+                "SELECT is_primary FROM items_images WHERE id = %s AND item_id = %s",
+                (image_id, item_id)
+            )
+            row = cur.fetchone()
+            if row:
+                was_primary = row["is_primary"]
+                cur.execute(
+                    "DELETE FROM items_images WHERE id = %s AND item_id = %s",
+                    (image_id, item_id)
+                )
+                if was_primary:
+                    # Promote another remaining image to primary, if any are left
+                    cur.execute("""
+                        UPDATE items_images
+                        SET is_primary = TRUE
+                        WHERE id = (
+                            SELECT id FROM items_images
+                            WHERE item_id = %s
+                            ORDER BY id
+                            LIMIT 1
+                        )
+                    """, (item_id,))
+
+        elif action == "replace_image":
+            image_id = request.form["image_id"]
+            image_file = request.files.get("image")
+            if image_file and image_file.filename:
+                image_data = image_file.read()
+                cur.execute("""
+                    UPDATE items_images
+                    SET filename = %s, mime_type = %s, data = %s
+                    WHERE id = %s AND item_id = %s
+                """, (image_file.filename, image_file.mimetype,
+                      psycopg2.Binary(image_data), image_id, item_id))
+
+        elif action == "set_primary_image":
+            image_id = request.form["image_id"]
+            cur.execute(
+                "UPDATE items_images SET is_primary = FALSE WHERE item_id = %s",
+                (item_id,)
+            )
+            cur.execute(
+                "UPDATE items_images SET is_primary = TRUE WHERE id = %s AND item_id = %s",
+                (image_id, item_id)
+            )
+
         conn.commit()
         conn.close()
         return redirect(url_for("edit_specs", item_id=item_id))
@@ -326,12 +430,19 @@ def edit_specs(item_id):
     # Fields not yet used on this item — available to add via dropdown
     available_fields = [f for f in all_fields if f["field_key"] not in specs]
 
+    cur.execute(
+        "SELECT id, filename, is_primary FROM items_images WHERE item_id = %s ORDER BY is_primary DESC, id",
+        (item_id,)
+    )
+    images = cur.fetchall()
+
     conn.close()
     return render_template(
         "edit_specs.html",
         item=item,
         current_specs=current_specs,
         available_fields=available_fields,
+        images=images,
     )
 
 

@@ -12,6 +12,66 @@
 </div>
 
 <div class="card">
+  <h2>Description</h2>
+  <form method="POST" class="m-0">
+    <input type="hidden" name="action" value="edit_description">
+    <textarea name="description" id="description" rows="4" class="value-input"
+      style="width: 100%; box-sizing: border-box; resize: vertical;"
+      data-original="{{ item.description or '' }}"
+      placeholder="Add a description…">{{ item.description or '' }}</textarea>
+    <button type="submit" class="btn-compact save-btn hidden mt-2">Save</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Images</h2>
+  {% if images %}
+    <div class="image-grid">
+      {% for img in images %}
+      <div class="image-tile">
+        <img src="{{ url_for('image', image_id=img.id) }}" alt="{{ item.name }}" class="image-thumb">
+        {% if img.is_primary %}
+          <span class="badge primary-badge">Primary</span>
+        {% endif %}
+
+        <div class="image-tile-actions">
+          {% if not img.is_primary %}
+          <form method="POST" class="m-0">
+            <input type="hidden" name="action" value="set_primary_image">
+            <input type="hidden" name="image_id" value="{{ img.id }}">
+            <button type="submit" class="btn-compact">Make primary</button>
+          </form>
+          {% endif %}
+
+          <form method="POST" enctype="multipart/form-data" class="m-0 replace-image-form">
+            <input type="hidden" name="action" value="replace_image">
+            <input type="hidden" name="image_id" value="{{ img.id }}">
+            <input type="file" name="image" accept="image/*" required class="hidden" onchange="this.form.submit()">
+            <button type="button" class="btn-compact" onclick="this.previousElementSibling.click()">Replace</button>
+          </form>
+
+          <form method="POST" class="m-0">
+            <input type="hidden" name="action" value="remove_image">
+            <input type="hidden" name="image_id" value="{{ img.id }}">
+            <button type="submit" class="danger btn-compact">Remove</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-faint">No images added yet.</p>
+  {% endif %}
+
+  <form method="POST" enctype="multipart/form-data" class="mt-4">
+    <input type="hidden" name="action" value="add_image">
+    <label for="image">Add an image</label>
+    <input type="file" id="image" name="image" accept="image/*" required>
+    <button type="submit">Add image</button>
+  </form>
+</div>
+
+<div class="card">
   <h2>Current specs</h2>
   {% if current_specs %}
     {% for spec in current_specs %}
