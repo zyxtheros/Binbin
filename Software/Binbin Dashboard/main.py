@@ -20,9 +20,12 @@ import webview          #pywebview
 import pg_manager
 import migrate
 from app import app as flask_app  # your existing Flask app object
+import os
 
 _DB_CONFIG = None
 
+icon_path = icon_path = os.path.join(os.path.dirname(__file__), "static/icon_binbin_greytone.png")  # Set the taskbar icon location
+#print(f"Icon path: {icon_path}")
 
 def get_db():
     """Drop-in replacement for the old get_db() in app.py — reads generated config."""
@@ -37,7 +40,7 @@ def get_db():
 
 
 def run_flask():
-    flask_app.run(host="127.0.0.1", port=5002, debug=False, use_reloader=False)
+    flask_app.run(host="127.0.0.1", port=5002, debug=True, use_reloader=False)
 
 
 def main():
@@ -60,10 +63,14 @@ def main():
     import app as app_module
     app_module.get_db = get_db
 
+    
+    print(f"[DB DEBUG] embedded config: host={_DB_CONFIG['host']} port={_DB_CONFIG['port']} "
+          f"dbname={_DB_CONFIG['dbname']} user={_DB_CONFIG['user']}")
+
     threading.Thread(target=run_flask, daemon=True).start()
 
-    webview.create_window("Inventory", "http://127.0.0.1:5002", width=1200, height=800)
-    webview.start()
+    webview.create_window("Binbin", "http://127.0.0.1:5002", width=1200, height=800)
+    webview.start(debug=False)
 
     # webview.start() blocks until window closes; atexit handles pg shutdown
 

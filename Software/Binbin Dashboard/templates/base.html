@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Item Catalog{% endblock %}</title>
+  <title>{% block title %}Inventory{% endblock %}</title>
   <!-- Add css file path, using static folder-->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <!-- Add icon library -->
@@ -13,9 +13,9 @@
 
 <body>
   <header>
-    <a href="/">Item Catalog</a>
+    <a href="/">Inventory</a>
     <div>
-      <a href="/item/new" class="btn">+ New Product</a>
+      <a href="/item/new" class="btn">+ New item</a>
       
       <a href="/settings" class="btn btn-hover">
         <i class="fa fa-cog"></i>
