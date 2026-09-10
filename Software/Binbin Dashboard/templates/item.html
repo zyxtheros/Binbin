@@ -61,7 +61,8 @@
 <div class="card">
   <h2>Datasheets</h2>
   {% for sheet in datasheets %}
-  <a href="/datasheet/{{ sheet.id }}" target="_blank" class="datasheet-link">
+  <a href="#" class="datasheet-link"
+     onclick="openPdfModal('/datasheet/{{ sheet.id }}', '{{ (sheet.filename or 'Datasheet ' ~ sheet.id)|replace("'", "\\'") }}'); return false;">
     📄 {{ sheet.filename or "Datasheet " ~ sheet.id }}
   </a>
   {% endfor %}

@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 import socket
 from waitress import serve
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
@@ -226,6 +227,19 @@ def new_item():
                 VALUES (%s, %s, %s, %s, TRUE)
             """, (new_id, image_file.filename, image_file.mimetype, psycopg2.Binary(image_data)))
 
+        # --- Handle datasheet upload(s) ---
+        datasheet_files = request.files.getlist("datasheets")
+        for ds_file in datasheet_files:
+            if not ds_file or not ds_file.filename:
+                continue
+            if not ds_file.filename.lower().endswith(".pdf"):
+                continue
+            ds_data = ds_file.read()
+            cur.execute("""
+                INSERT INTO items_datasheets (item_id, filename, mime_type, data)
+                VALUES (%s, %s, %s, %s)
+            """, (new_id, ds_file.filename, ds_file.mimetype or "application/pdf", psycopg2.Binary(ds_data)))
+
         conn.commit()
         conn.close()
         return redirect(url_for("item", item_id=new_id))
@@ -264,7 +278,6 @@ def api_item(item_id):
         "description": row["description"],
         "specs": row["specs"] or {}
     })
-
 
 # ---------- Edit specs for an item (add/remove fields) ----------
 @app.route("/item/<int:item_id>/specs", methods=["GET", "POST"])
@@ -402,6 +415,39 @@ def edit_specs(item_id):
                 (image_id, item_id)
             )
 
+        elif action == "add_datasheet":
+            datasheet_files = request.files.getlist("datasheets")
+            for ds_file in datasheet_files:
+                if not ds_file or not ds_file.filename:
+                    continue
+                if not ds_file.filename.lower().endswith(".pdf"):
+                    continue
+                ds_data = ds_file.read()
+                cur.execute("""
+                    INSERT INTO items_datasheets (item_id, filename, mime_type, data)
+                    VALUES (%s, %s, %s, %s)
+                """, (item_id, ds_file.filename, ds_file.mimetype or "application/pdf",
+                      psycopg2.Binary(ds_data)))
+
+        elif action == "remove_datasheet":
+            datasheet_id = request.form["datasheet_id"]
+            cur.execute(
+                "DELETE FROM items_datasheets WHERE id = %s AND item_id = %s",
+                (datasheet_id, item_id)
+            )
+
+        elif action == "replace_datasheet":
+            datasheet_id = request.form["datasheet_id"]
+            ds_file = request.files.get("datasheet")
+            if ds_file and ds_file.filename and ds_file.filename.lower().endswith(".pdf"):
+                ds_data = ds_file.read()
+                cur.execute("""
+                    UPDATE items_datasheets
+                    SET filename = %s, mime_type = %s, data = %s, uploaded_at = NOW()
+                    WHERE id = %s AND item_id = %s
+                """, (ds_file.filename, ds_file.mimetype or "application/pdf",
+                      psycopg2.Binary(ds_data), datasheet_id, item_id))
+
         conn.commit()
         conn.close()
         return redirect(url_for("edit_specs", item_id=item_id))
@@ -436,6 +482,12 @@ def edit_specs(item_id):
     )
     images = cur.fetchall()
 
+    cur.execute(
+        "SELECT id, filename, uploaded_at FROM items_datasheets WHERE item_id = %s ORDER BY uploaded_at",
+        (item_id,)
+    )
+    datasheets = cur.fetchall()
+
     conn.close()
     return render_template(
         "edit_specs.html",
@@ -443,10 +495,26 @@ def edit_specs(item_id):
         current_specs=current_specs,
         available_fields=available_fields,
         images=images,
+        datasheets=datasheets,
     )
 
+# ---------- Datasheet binary serving ----------
+@app.route("/datasheet/<int:datasheet_id>")
+def datasheet(datasheet_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT data, mime_type, filename FROM items_datasheets WHERE id = %s", (datasheet_id,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        abort(404)
+    return Response(
+        bytes(row["data"]),
+        mimetype=row["mime_type"] or "application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{row["filename"]}"'}
+    )
 
-# ---------- Image / PDF binary serving ----------
+# ---------- Image binary serving ----------
 @app.route("/image/<int:image_id>")
 def image(image_id):
     conn = get_db()
@@ -459,20 +527,20 @@ def image(image_id):
     return Response(bytes(row["data"]), mimetype=row["mime_type"] or "image/jpeg")
 
 
-@app.route("/datasheet/<int:sheet_id>")
-def datasheet(sheet_id):
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT data, filename FROM items_datasheets WHERE id = %s", (sheet_id,))
-    row = cur.fetchone()
-    conn.close()
-    if not row:
-        abort(404)
-    return Response(
-        bytes(row["data"]),
-        mimetype="application/pdf",
-        headers={"Content-Disposition": f'inline; filename="{row["filename"]}"'}
-    )
+# @app.route("/datasheet/<int:sheet_id>")
+# def datasheet(sheet_id):
+#     conn = get_db()
+#     cur = conn.cursor()
+#     cur.execute("SELECT data, filename FROM items_datasheets WHERE id = %s", (sheet_id,))
+#     row = cur.fetchone()
+#     conn.close()
+#     if not row:
+#         abort(404)
+#     return Response(
+#         bytes(row["data"]),
+#         mimetype="application/pdf",
+#         headers={"Content-Disposition": f'inline; filename="{row["filename"]}"'}
+#     )
 
 # ---------- Add route handler for settings page ----------
 @app.route("/settings")

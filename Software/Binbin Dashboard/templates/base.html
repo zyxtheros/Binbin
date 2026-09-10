@@ -25,6 +25,40 @@
     
   </header>
   <main>{% block content %}{% endblock %}</main>
+
+  <!-- Global PDF viewer modal -->
+  <div id="pdf-modal" class="pdf-modal hidden">
+    <div class="pdf-modal-inner">
+      <div class="pdf-modal-header">
+        <span id="pdf-modal-filename"></span>
+        <button type="button" class="pdf-modal-close" onclick="closePdfModal()">&times;</button>
+      </div>
+      <iframe id="pdf-modal-frame" src=""></iframe>
+    </div>
+  </div>
+
+  <script>
+    function openPdfModal(url, filename) {
+      document.getElementById('pdf-modal-frame').src = url;
+      document.getElementById('pdf-modal-filename').textContent = filename || '';
+      document.getElementById('pdf-modal').classList.remove('hidden');
+    }
+
+    function closePdfModal() {
+      document.getElementById('pdf-modal').classList.add('hidden');
+      document.getElementById('pdf-modal-frame').src = ''; // stop rendering when closed
+    }
+
+    // Close on background click, but not when clicking inside the modal itself
+    document.getElementById('pdf-modal').addEventListener('click', function (e) {
+      if (e.target === this) closePdfModal();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closePdfModal();
+    });
+  </script>
 </body>
 
 </html>

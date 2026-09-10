@@ -21,6 +21,7 @@
   --color-header-btn-bg: rgba(255, 255, 255, 0.15);
 
   /* Border radius */
+  --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 10px;
@@ -502,4 +503,80 @@ margin-left: auto;    /* pushes Save to the right edge of the form, landing next
   --spec-name-width: 110px;
   --spec-value-width: 140px;
 }
+}
+
+.datasheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.datasheet-tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+}
+
+.datasheet-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-3);
+}
+
+.datasheet-tile-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* PDF modal iFrame styles */
+.pdf-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.pdf-modal.hidden { display: none; }
+
+.pdf-modal-inner {
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  width: 85vw;
+  height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pdf-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pdf-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 var(--space-2);
+}
+
+.pdf-modal-frame,
+#pdf-modal-frame {
+  flex: 1;
+  width: 100%;
+  border: none;
 }
