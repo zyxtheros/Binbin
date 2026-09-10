@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import socket
 from waitress import serve
 from werkzeug.utils import secure_filename
+import re
 
 load_dotenv()
 
@@ -526,22 +527,6 @@ def image(image_id):
         abort(404)
     return Response(bytes(row["data"]), mimetype=row["mime_type"] or "image/jpeg")
 
-
-# @app.route("/datasheet/<int:sheet_id>")
-# def datasheet(sheet_id):
-#     conn = get_db()
-#     cur = conn.cursor()
-#     cur.execute("SELECT data, filename FROM items_datasheets WHERE id = %s", (sheet_id,))
-#     row = cur.fetchone()
-#     conn.close()
-#     if not row:
-#         abort(404)
-#     return Response(
-#         bytes(row["data"]),
-#         mimetype="application/pdf",
-#         headers={"Content-Disposition": f'inline; filename="{row["filename"]}"'}
-#     )
-
 # ---------- Add route handler for settings page ----------
 @app.route("/settings")
 def settings():
@@ -554,6 +539,54 @@ def settings():
     items = cur.fetchall()
 
     return render_template("settings.html", items = items) # pass the items to the template for rendering
+
+# ---------- Add route handler for processing SQL queries from settings page ----------
+DESTRUCTIVE_PATTERN = re.compile(
+    r'\b(DROP|DELETE|TRUNCATE|ALTER|UPDATE)\b', re.IGNORECASE
+)
+
+@app.route('/settings/run_sql', methods=['POST'])
+def run_sql():
+    data = request.get_json()
+    query = (data.get('query') or '').strip()
+    confirmed = data.get('confirmed', False)
+
+    if not query:
+        return jsonify({'error': 'No query provided'}), 400
+
+    # Require explicit confirmation for destructive statements
+    if DESTRUCTIVE_PATTERN.search(query) and not confirmed:
+        return jsonify({'needs_confirmation': True}), 200
+
+    conn = get_db()
+    cur = conn.cursor()  # RealDictCursor per your existing setup
+    try:
+        cur.execute(query)
+
+        if cur.description:  # SELECT-like: has columns to return
+            rows = cur.fetchall()
+            columns = [desc[0] for desc in cur.description]
+            conn.commit()
+            return jsonify({
+                'columns': columns,
+                'rows': rows,
+                'rowcount': len(rows)
+            })
+        else:  # INSERT/UPDATE/DELETE/etc — no result set
+            affected = cur.rowcount
+            conn.commit()
+            return jsonify({
+                'columns': [],
+                'rows': [],
+                'rowcount': affected,
+                'message': f'{affected} row(s) affected'
+            })
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
 
 if __name__ == "__main__":
     # Get free port to run the app on

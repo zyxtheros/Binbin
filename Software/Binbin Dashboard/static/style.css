@@ -581,3 +581,94 @@ margin-left: auto;    /* pushes Save to the right edge of the form, landing next
   width: 100%;
   border: none;
 }
+
+.sql-textarea {
+  width: 100%;
+  font-family: monospace;
+  font-size: 0.9rem;
+  padding: var(--space-3);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.sql-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.sql-console-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.sql-status {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.sql-confirm-box {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-danger);
+  background: var(--color-badge-bg);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+}
+
+.sql-confirm-box p {
+  margin: 0 0 var(--space-2) 0;
+  color: var(--color-text-heading);
+}
+
+.sql-results-wrapper {
+  margin-top: var(--space-4);
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.sql-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.sql-results-table th,
+.sql-results-table td {
+  border: 1px solid var(--color-border-soft);
+  padding: var(--space-1) var(--space-2);
+  text-align: left;
+  white-space: nowrap;
+  color: var(--color-text);
+}
+
+.sql-results-table th {
+  background: var(--color-bg);
+  color: var(--color-text-heading);
+  position: sticky;
+  top: 0;
+}
+
+.sql-null {
+  color: var(--color-text-faintest);
+  font-style: italic;
+}
+
+.sql-error {
+  color: var(--color-danger);
+  background: var(--color-badge-bg);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  font-family: monospace;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}

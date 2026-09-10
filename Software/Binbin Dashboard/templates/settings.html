@@ -53,23 +53,129 @@
         
         <section id="database">
             <div class="card">
-                <h2>database</h2>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-                <p>Some text..</p>
-            </div>
+                <h2 class="card-title">SQL Console</h2>
+                <p class="card-subtitle">Run raw SQL directly against the database. Use with care.</p>
+              
+                <textarea id="sql-query-input" class="sql-textarea" rows="6"></textarea>
+                <script>// Pre-fill the textarea with a sample query. Using a JS string to get escape character support
+                    document.getElementById('sql-query-input').value =
+                        "SELECT id, name, description, created_at\nFROM items\nORDER BY created_at DESC\nLIMIT 10;";
+                </script>
+                
+                <div class="sql-console-actions">
+                  <button id="sql-run-btn" class="button">Run Query</button>
+                  <span id="sql-status" class="sql-status"></span>
+                </div>
+              
+                <div id="sql-confirm-box" class="sql-confirm-box" style="display: none;">
+                  <p>⚠️ This looks like a destructive query. Run it anyway?</p>
+                  <button id="sql-confirm-yes" class="button danger">Yes, run it</button>
+                  <button id="sql-confirm-no" class="button secondary">Cancel</button>
+                </div>
+              
+                <div id="sql-results-wrapper" class="sql-results-wrapper"></div>
+              </div>
+              
+              <script>
+              (function() {
+                const runBtn = document.getElementById('sql-run-btn');
+                const input = document.getElementById('sql-query-input');
+                const status = document.getElementById('sql-status');
+                const resultsWrapper = document.getElementById('sql-results-wrapper');
+                const confirmBox = document.getElementById('sql-confirm-box');
+                const confirmYes = document.getElementById('sql-confirm-yes');
+                const confirmNo = document.getElementById('sql-confirm-no');
+              
+                let pendingQuery = null;
+              
+                async function executeQuery(query, confirmed) {
+                  status.textContent = 'Running...';
+                  resultsWrapper.innerHTML = '';
+              
+                  try {
+                    const resp = await fetch('/settings/run_sql', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ query, confirmed })
+                    });
+                    const data = await resp.json();
+              
+                    if (data.needs_confirmation) {
+                      pendingQuery = query;
+                      confirmBox.style.display = 'block';
+                      status.textContent = '';
+                      return;
+                    }
+              
+                    confirmBox.style.display = 'none';
+              
+                    if (data.error) {
+                      status.textContent = '';
+                      resultsWrapper.innerHTML = `<div class="sql-error">${escapeHtml(data.error)}</div>`;
+                      return;
+                    }
+              
+                    status.textContent = data.message || `${data.rowcount} row(s) returned`;
+                    renderResults(data.columns, data.rows);
+              
+                  } catch (err) {
+                    status.textContent = '';
+                    resultsWrapper.innerHTML = `<div class="sql-error">Request failed: ${escapeHtml(err.message)}</div>`;
+                  }
+                }
+              
+                function renderResults(columns, rows) {
+                  if (!columns || columns.length === 0) {
+                    return;
+                  }
+                  let html = '<table class="sql-results-table"><thead><tr>';
+                  columns.forEach(col => html += `<th>${escapeHtml(col)}</th>`);
+                  html += '</tr></thead><tbody>';
+                  rows.forEach(row => {
+                    html += '<tr>';
+                    columns.forEach(col => {
+                      let val = row[col];
+                      if (val === null || val === undefined) val = '<span class="sql-null">NULL</span>';
+                      else if (typeof val === 'object') val = escapeHtml(JSON.stringify(val));
+                      else val = escapeHtml(String(val));
+                      html += `<td>${val}</td>`;
+                    });
+                    html += '</tr>';
+                  });
+                  html += '</tbody></table>';
+                  resultsWrapper.innerHTML = html;
+                }
+              
+                function escapeHtml(str) {
+                  const div = document.createElement('div');
+                  div.textContent = str;
+                  return div.innerHTML;
+                }
+              
+                runBtn.addEventListener('click', () => {
+                  const query = input.value.trim();
+                  if (!query) return;
+                  executeQuery(query, false);
+                });
+              
+                confirmYes.addEventListener('click', () => {
+                  if (pendingQuery) executeQuery(pendingQuery, true);
+                });
+              
+                confirmNo.addEventListener('click', () => {
+                  pendingQuery = null;
+                  confirmBox.style.display = 'none';
+                  status.textContent = '';
+                });
+              
+                // Cmd/Ctrl+Enter to run
+                input.addEventListener('keydown', (e) => {
+                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                    runBtn.click();
+                  }
+                });
+              })();
+              </script>
         </section>
     </div>
 </div>
