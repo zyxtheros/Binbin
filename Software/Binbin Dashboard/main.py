@@ -19,7 +19,7 @@ import webview          #pywebview
 
 import pg_manager
 import migrate
-from app import app as flask_app  # your existing Flask app object
+from app import app as flask_app
 import os
 
 _DB_CONFIG = None
@@ -59,7 +59,7 @@ def main():
     migrate.run_all(conn)
     conn.close()
 
-    # Make config importable from app.py without circular-import pain
+    # Make config importable from app.py without circular-import
     import app as app_module
     app_module.get_db = get_db
 

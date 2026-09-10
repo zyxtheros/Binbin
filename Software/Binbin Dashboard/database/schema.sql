@@ -35,11 +35,16 @@ CREATE TABLE IF NOT EXISTS items_images (
 );
 
 CREATE TABLE IF NOT EXISTS items_datasheets (
-    id        SERIAL PRIMARY KEY,
-    item_id   INT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
-    filename  TEXT NOT NULL,
-    data      BYTEA NOT NULL
+    id SERIAL PRIMARY KEY,
+    item_id INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+    filename TEXT NOT NULL,
+    mime_type TEXT NOT NULL DEFAULT 'application/pdf',
+    data BYTEA NOT NULL,
+    uploaded_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_items_datasheets_item_id
+    ON items_datasheets(item_id);
 
 -- Seed schema_version only if the table is empty (first run)
 INSERT INTO schema_version (version)

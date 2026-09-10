@@ -1,0 +1,37 @@
+# check_schema.py
+import psycopg2
+import psycopg2.extras
+import main
+import pg_manager
+
+_DB_CONFIG = pg_manager.ensure_running()
+
+def get_db():
+    """Drop-in replacement for the old get_db() in app.py — reads generated config."""
+    return psycopg2.connect(
+        host=_DB_CONFIG["host"],
+        port=_DB_CONFIG["port"],
+        dbname=_DB_CONFIG["dbname"],
+        user=_DB_CONFIG["user"],
+        password=_DB_CONFIG["password"],
+        cursor_factory=psycopg2.extras.RealDictCursor,
+    )
+
+conn = get_db()
+cur = conn.cursor()
+cur.execute("""
+    ALTER TABLE items_datasheets
+    ADD COLUMN IF NOT EXISTS mime_type TEXT NOT NULL DEFAULT 'application/pdf',
+    ADD COLUMN IF NOT EXISTS uploaded_at TIMESTAMP NOT NULL DEFAULT NOW()
+""")
+conn.commit()
+print("Columns added.")
+
+cur.execute("""
+    SELECT column_name, data_type
+    FROM information_schema.columns
+    WHERE table_name = 'items_datasheets'
+    ORDER BY ordinal_position
+""")
+for row in cur.fetchall():
+    print(row)

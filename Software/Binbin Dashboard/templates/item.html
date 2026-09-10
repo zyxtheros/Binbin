@@ -61,7 +61,10 @@
 <div class="card">
   <h2>Datasheets</h2>
   {% for sheet in datasheets %}
-  <a href="/datasheet/{{ sheet.id }}" target="_blank" class="datasheet-link">
+  <a href="{{ url_for('datasheet', datasheet_id=sheet.id) }}"
+     class="datasheet-link"
+     data-pdf-url="{{ url_for('datasheet', datasheet_id=sheet.id) }}"
+     data-pdf-filename="{{ sheet.filename or 'Datasheet ' ~ sheet.id }}">
     📄 {{ sheet.filename or "Datasheet " ~ sheet.id }}
   </a>
   {% endfor %}
