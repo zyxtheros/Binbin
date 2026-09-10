@@ -77,8 +77,10 @@
     <div class="datasheet-list">
       {% for ds in datasheets %}
       <div class="datasheet-tile">
-        <a href="#" class="datasheet-name"
-          onclick="openPdfModal('{{ url_for('datasheet', datasheet_id=ds.id) }}', '{{ ds.filename|replace("'", "\\'") }}'); return false;">
+        <a href="{{ url_for('datasheet', datasheet_id=ds.id) }}"
+          class="datasheet-name"
+          data-pdf-url="{{ url_for('datasheet', datasheet_id=ds.id) }}"
+          data-pdf-filename="{{ ds.filename }}">
           📄 {{ ds.filename }}
         </a>
 

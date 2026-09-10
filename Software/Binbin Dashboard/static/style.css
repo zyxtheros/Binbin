@@ -572,6 +572,7 @@ margin-left: auto;    /* pushes Save to the right edge of the form, landing next
   line-height: 1;
   cursor: pointer;
   padding: 0 var(--space-2);
+  color: var(--color-text);
 }
 
 .pdf-modal-frame,

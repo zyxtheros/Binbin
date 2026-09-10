@@ -106,11 +106,8 @@ function positionBaseItemSuggestions() {
 
 function filterBaseItemOptions(query) {
   const loadBtn = document.getElementById('load-base-item-btn');
-
-  // Typing invalidates any previously selected item until they pick again
   selectedBaseItemId = null;
   loadBtn.disabled = true;
-
   positionBaseItemSuggestions();
 
   const q = query.trim().toLowerCase();
@@ -119,19 +116,27 @@ function filterBaseItemOptions(query) {
         it.sku.toLowerCase().includes(q) || it.name.toLowerCase().includes(q))
     : baseItemsData;
 
+  baseItemSuggestions.innerHTML = '';
+
   if (matches.length === 0) {
-    baseItemSuggestions.innerHTML = '<div style="padding:0.5rem; color:#888;">No matching items</div>';
+    const empty = document.createElement('div');
+    empty.style.cssText = 'padding:0.5rem; color:#888;';
+    empty.textContent = 'No matching items';
+    baseItemSuggestions.appendChild(empty);
     baseItemSuggestions.classList.remove('hidden');
     return;
   }
 
-  baseItemSuggestions.innerHTML = matches.slice(0, 20).map(it => `
-    <div class="base-item-option" data-id="${it.id}"
-         style="padding:0.5rem; cursor:pointer;"
-         onmousedown="selectBaseItem(${it.id}, '${it.sku.replace(/'/g, "\\'")} — ${it.name.replace(/'/g, "\\'")}')">
-      ${it.sku} — ${it.name}
-    </div>
-  `).join('');
+  matches.slice(0, 20).forEach(it => {
+    const label = `${it.sku} — ${it.name}`;
+    const option = document.createElement('div');
+    option.className = 'base-item-option';
+    option.style.cssText = 'padding:0.5rem; cursor:pointer;';
+    option.textContent = label; // textContent, not innerHTML — no HTML injection possible
+    option.addEventListener('mousedown', () => selectBaseItem(it.id, label));
+    baseItemSuggestions.appendChild(option);
+  });
+
   baseItemSuggestions.classList.remove('hidden');
 }
 

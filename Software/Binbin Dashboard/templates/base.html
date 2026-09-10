@@ -46,17 +46,26 @@
 
     function closePdfModal() {
       document.getElementById('pdf-modal').classList.add('hidden');
-      document.getElementById('pdf-modal-frame').src = ''; // stop rendering when closed
+      document.getElementById('pdf-modal-frame').src = '';
     }
 
-    // Close on background click, but not when clicking inside the modal itself
     document.getElementById('pdf-modal').addEventListener('click', function (e) {
       if (e.target === this) closePdfModal();
     });
 
-    // Close on Escape
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closePdfModal();
+    });
+
+    // Global delegated handler: any element with data-pdf-url opens the PDF
+    // modal instead of navigating. No inline onclick strings needed anywhere,
+    // so filenames with quotes/special characters can't break anything.
+    document.addEventListener('click', function (e) {
+      const trigger = e.target.closest('[data-pdf-url]');
+      if (trigger) {
+        e.preventDefault();
+        openPdfModal(trigger.dataset.pdfUrl, trigger.dataset.pdfFilename || '');
+      }
     });
   </script>
 </body>
